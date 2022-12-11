@@ -36,10 +36,8 @@ class HandlerState(execution.HandlerState):
     carried over for logging of counts/extras, and for final state purging,
     but not participating in the current handling cycle.
     """
-
-    # Some fields may overlap the base class's fields, but this is fine (the types are the same).
-    active: Optional[bool] = None  # is it used in done/delays [T]? or only in counters/purges [F]?
-    started: Optional[datetime.datetime] = None  # None means this information was lost.
+    active: bool  # whether it is used in done/delays [T] or only in counters/purges [F].
+    started: datetime.datetime
     stopped: Optional[datetime.datetime] = None  # None means it is still running (e.g. delayed).
     delayed: Optional[datetime.datetime] = None  # None means it is finished (succeeded/failed).
     purpose: Optional[str] = None  # None is a catch-all marker for upgrades/rollbacks.
@@ -127,7 +125,7 @@ class HandlerState(execution.HandlerState):
         return cls(
             active=self.active,
             purpose=self.purpose,
-            started=self.started if self.started is not None else now,
+            started=self.started,
             stopped=self.stopped if self.stopped is not None else now if outcome.final else None,
             delayed=now + datetime.timedelta(seconds=outcome.delay) if outcome.delay is not None else None,
             success=bool(outcome.final and outcome.exception is None),
