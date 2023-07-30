@@ -7,7 +7,7 @@ import logging
 import re
 import sys
 import time
-from typing import Set
+from typing import Set, Optional
 
 import aiohttp.web
 import pytest
@@ -310,7 +310,7 @@ def version_api(resp_mocker, aresponses, hostname, resource):
 def stream(fake_vault, resp_mocker, aresponses, hostname, resource, version_api):
     """ A mock for the stream of events as if returned by K8s client. """
 
-    def feed(*args, namespace=None):
+    def feed(*args, namespace: Optional[str]):
         for arg in args:
 
             # Prepare the stream response pre-rendered (for simplicity, no actual streaming).
@@ -335,7 +335,7 @@ def stream(fake_vault, resp_mocker, aresponses, hostname, resource, version_api)
             aresponses.add(hostname, list_url, 'get', list_resp, match_querystring=True)
 
     # TODO: One day, find a better way to terminate a ``while-true`` reconnection cycle.
-    def close(*, namespace=None):
+    def close(*, namespace: Optional[str]):
         """
         A way to stop the stream from reconnecting: say it that the resource version is gone
         (we know a priori that it stops on this condition, and escalates to `infinite_stream`).
